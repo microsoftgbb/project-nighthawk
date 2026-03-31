@@ -1,0 +1,51 @@
+{
+  "name": "Nighthawk Documentation Environment",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  
+  "postCreateCommand": "npm install -g @mermaid-js/mermaid-cli markdownlint-cli markdown-link-check",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bierner.markdown-mermaid",
+        "yzhang.markdown-all-in-one",
+        "DavidAnson.vscode-markdownlint",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "evilz.vscode-reveal",
+        "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+        "shd101wyy.markdown-preview-enhanced",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "markdown.mermaid.theme": "default",
+        "markdown.preview.breaks": true,
+        "markdown.preview.typographer": true,
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        "editor.formatOnSave": true,
+        "editor.wordWrap": "on",
+        "markdown.extension.toc.levels": "2..4",
+        "markdownlint.config": {
+          "MD013": false,
+          "MD033": false
+        }
+      }
+    }
+  },
+  
+  "remoteUser": "codespace",
+  
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "32gb"
+  }
+}

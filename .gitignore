@@ -1,0 +1,7 @@
+# Ignore docs directory
+repos/
+notes/
+
+# macOS resource forks
+._*
+.DS_Store

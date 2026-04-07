@@ -16,7 +16,7 @@
 		},
 		"com.microsoft/azure": {
 			"type": "stdio",
-			"command": "/Users/dcasati/.vscode/extensions/ms-azuretools.vscode-azure-mcp-server-1.0.4-darwin-arm64/server/azmcp",
+			"command": "$HOME/.vscode/extensions/ms-azuretools.vscode-azure-mcp-server-1.0.4-darwin-arm64/server/azmcp",
 			"args": [
 				"server",
 				"start"

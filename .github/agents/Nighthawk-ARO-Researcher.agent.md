@@ -1,7 +1,7 @@
 ---
 description: Deep technical researcher for Azure Red Hat OpenShift (ARO). Analyzes locally cloned repositories and Microsoft Learn to answer ARO-specific questions.
 model: Claude Opus 4.6 (1M context)(Internal only)
-tools: [grep_search, file_search, read_file, semantic_search, microsoft-learn/*, edit, github/search_code]
+tools: [grep_search, file_search, read_file, semantic_search, microsoft-learn/*, edit, github/search_code,azure-mcp/azureterraformbestpractices, azure-mcp/cloudarchitect, azure-mcp/bicepschema, azure-mcp/documentation, azure-mcp/get_bestpractices]
 skills:
   - Nighthawk-LocalRepos
 ---

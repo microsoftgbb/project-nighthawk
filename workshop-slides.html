@@ -1,0 +1,1419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Nighthawk Workshop — Build Your Own AI Agent Pipeline</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --r-background-color: #0d1117;
+      --r-main-color: #e6edf3;
+      --r-heading-color: #d4ad5e;
+      --r-link-color: #d4ad5e;
+      --r-link-color-hover: #e8c878;
+      --r-selection-background-color: #3a2d1a;
+      --accent-orange: #d4ad5e;
+      --accent-green: #3fb950;
+      --accent-purple: #bc8cff;
+      --accent-red: #c04040;
+      --accent-cyan: #4a9a8a;
+    }
+    .reveal { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+    .reveal .slides { transform: translate3d(0,0,0) !important; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+    .reveal h1, .reveal h2, .reveal h3 { font-weight: 700; letter-spacing: -0.02em; }
+    .reveal h1 { font-size: 2.2em; }
+    .reveal h2 { font-size: 1.6em; }
+    .reveal h3 { font-size: 1.2em; color: var(--accent-orange); }
+    .reveal p, .reveal li { font-size: 0.75em; line-height: 1.6; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.65em; margin-top: 0.5em; }
+    .reveal .highlight { color: var(--accent-orange); font-weight: 600; }
+    .reveal .green { color: var(--accent-green); }
+    .reveal .purple { color: var(--accent-purple); }
+    .reveal .cyan { color: var(--accent-cyan); }
+    .reveal .red { color: var(--accent-red); }
+
+    /* Section divider slides */
+    .section-divider h2 {
+      font-size: 2.4em;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 3px solid var(--accent-orange);
+      padding-bottom: 0.3em;
+      display: inline-block;
+    }
+    .section-divider p { font-size: 0.7em; color: #8b949e; }
+
+    /* Agent cards */
+    .agent-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.2em;
+      margin: 0.5em 0;
+      text-align: left;
+    }
+    .agent-card h3 { margin: 0 0 0.3em 0; font-size: 0.9em; }
+    .agent-card p { margin: 0; font-size: 0.6em; color: #8b949e; }
+
+    /* Pipeline flow */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3em;
+      flex-wrap: wrap;
+    }
+    .pipeline-step {
+      background: #161b22;
+      border: 2px solid var(--accent-orange);
+      border-radius: 10px;
+      padding: 0.6em 1em;
+      font-size: 0.6em;
+      font-weight: 600;
+      color: var(--accent-orange);
+      min-width: 100px;
+      text-align: center;
+    }
+    .pipeline-step.done {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      background: rgba(63, 185, 80, 0.08);
+    }
+    .pipeline-step.current {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: rgba(74, 154, 138, 0.08);
+      box-shadow: 0 0 12px rgba(74, 154, 138, 0.3);
+    }
+    .pipeline-arrow { font-size: 1.2em; color: #484f58; }
+
+    /* Grid layouts */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5em;
+      align-items: start;
+    }
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1em;
+      align-items: start;
+    }
+
+    /* Comparison table */
+    .reveal table {
+      font-size: 0.55em;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .reveal table th {
+      background: #161b22;
+      color: var(--accent-orange);
+      padding: 0.6em 0.8em;
+      border-bottom: 2px solid var(--accent-orange);
+      text-align: left;
+    }
+    .reveal table td {
+      padding: 0.5em 0.8em;
+      border-bottom: 1px solid #21262d;
+      text-align: left;
+    }
+
+    /* Code blocks */
+    .reveal pre { font-size: 0.5em; box-shadow: none; }
+    .reveal pre code {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1em;
+      max-height: 480px;
+    }
+
+    /* Quote styling */
+    .reveal blockquote {
+      background: #161b22;
+      border-left: 4px solid var(--accent-cyan);
+      padding: 1em 1.5em;
+      margin: 1em 0;
+      font-style: normal;
+      border-radius: 0 8px 8px 0;
+      width: 85%;
+    }
+    .reveal blockquote p { font-size: 0.75em; }
+
+    /* Badge / pill */
+    .badge {
+      display: inline-block;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      padding: 0.2em 0.8em;
+      font-size: 0.5em;
+      color: #8b949e;
+      margin: 0.1em;
+    }
+    .badge.green { border-color: var(--accent-green); color: var(--accent-green); }
+    .badge.orange { border-color: var(--accent-orange); color: var(--accent-orange); }
+    .badge.cyan { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .badge.purple { border-color: var(--accent-purple); color: var(--accent-purple); }
+
+    /* Lab banner */
+    .lab-banner {
+      background: linear-gradient(135deg, #1d1a12, #0d1117);
+      border: 2px solid var(--accent-green);
+      border-radius: 16px;
+      padding: 1.5em 2em;
+      text-align: center;
+    }
+    .lab-banner h2 { color: var(--accent-green); font-size: 1.8em; margin-bottom: 0.2em; }
+    .lab-banner .lab-number {
+      font-size: 0.55em;
+      color: var(--accent-green);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .lab-banner p { font-size: 0.7em; color: #8b949e; }
+
+    /* Demo slide */
+    .demo-banner {
+      background: linear-gradient(135deg, #1d1a12, #0d1117);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 16px;
+      padding: 2em;
+      text-align: center;
+    }
+    .demo-banner h2 { color: var(--accent-cyan); font-size: 2em; }
+
+    /* Hands-on box */
+    .hands-on {
+      background: #161b22;
+      border: 2px dashed var(--accent-green);
+      border-radius: 12px;
+      padding: 1.2em;
+      text-align: left;
+    }
+    .hands-on h3 { color: var(--accent-green); margin-top: 0; }
+
+    /* Nighthawk logo on title */
+    .title-logo { max-height: 80px; width: auto; margin-bottom: 0.2em; border-radius: 6px; }
+
+    /* Emoji sizing */
+    .emoji { font-size: 1.5em; }
+
+    /* Slide number */
+    .reveal .slide-number { font-size: 0.5em; color: #484f58; }
+
+    /* Key takeaway box */
+    .takeaway {
+      background: linear-gradient(135deg, #1d1a12, #0d1117);
+      border-left: 4px solid var(--accent-green);
+      padding: 0.8em 1.2em;
+      border-radius: 0 8px 8px 0;
+      margin: 0.5em 0;
+      text-align: left;
+    }
+    .takeaway p { margin: 0; }
+
+    /* Timer badge */
+    .timer {
+      display: inline-block;
+      background: #21262d;
+      border: 1px solid #484f58;
+      border-radius: 6px;
+      padding: 0.15em 0.5em;
+      font-size: 0.5em;
+      color: #8b949e;
+      vertical-align: middle;
+      margin-left: 0.3em;
+    }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- TITLE SLIDE -->
+<!-- ============================================================ -->
+<section>
+  <img src="assets/nighthawk-cover-small.png" alt="Nighthawk" style="max-height: 200px; width: auto; border-radius: 8px;">
+  <h1>Project Nighthawk</h1>
+  <p style="font-size: 0.7em; color: var(--accent-orange);">Build Your Own AI Agent Pipeline</p>
+  <br>
+  <p style="font-size: 0.6em;">
+    <strong>Diego Casati</strong><br>
+    <span style="color: #8b949e;">Principal Cloud Native Computing Technical Specialist · Microsoft</span>
+  </p>
+  <p class="subtitle">Hands-On Workshop · 60 min</p>
+  <aside class="notes">
+    Welcome! This is fully hands-on — by the end of this session, every student will have built
+    a working multi-agent research pipeline from scratch using only markdown files and VS Code.
+    Mention Ray Kao as co-creator of the original Nighthawk.
+  </aside>
+</section>
+
+<section>
+  <h2>Before We Start</h2>
+  <br>
+  <p style="font-size: 0.8em;">Clone the repo now — you'll need it for the labs:</p>
+  <br>
+  <div class="two-col" style="align-items: center;">
+    <div style="text-align: center;">
+      <img src="assets/repo-qr.png" alt="Repo QR Code" style="max-height: 220px; width: auto; border-radius: 8px;">
+      <p style="font-size: 0.5em; color: #8b949e; margin-top: 0.3em;">Scan to open the repo</p>
+    </div>
+    <div style="text-align: left;">
+      <pre><code class="language-bash" data-trim>
+git clone https://github.com/microsoftgbb/project-nighthawk.git
+cd project-nighthawk && code .
+      </code></pre>
+      <br>
+      <p style="font-size: 0.55em; color: #8b949e;">
+        github.com/microsoftgbb/project-nighthawk
+      </p>
+    </div>
+  </div>
+  <aside class="notes">
+    Give students a minute to scan and clone. Walk around to help anyone who's stuck.
+    "While that's cloning, let me tell you what we're building."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- WHAT WE'RE BUILDING -->
+<!-- ============================================================ -->
+<section>
+  <h2>What We're Building Today</h2>
+  <br>
+  <p style="font-size: 0.85em;">A <span class="highlight">four-agent AI pipeline</span> that:</p>
+  <br>
+  <ol>
+    <li class="fragment"><span class="purple">Classifies</span> a technical question</li>
+    <li class="fragment"><span class="highlight">Researches</span> it against real source code</li>
+    <li class="fragment"><span class="cyan">Synthesizes</span> findings into a structured report</li>
+    <li class="fragment"><span class="green">Fact-checks</span> every claim before delivery</li>
+  </ol>
+  <br><br>
+  <p class="fragment" style="font-size: 0.7em; color: var(--accent-cyan);">
+    All of it built with <strong>zero code</strong> — just markdown files in VS Code.
+  </p>
+  <aside class="notes">
+    Set expectations. They will build each agent themselves.
+    Everything is markdown. No Python, no JavaScript, no build step.
+  </aside>
+</section>
+
+<section>
+  <h2>Workshop Roadmap</h2>
+  <br>
+  <table style="border-collapse: separate; border-spacing: 0 0.3em; width: 80%; margin: 0 auto;">
+    <tbody>
+      <tr style="background: rgba(212, 173, 94, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-orange); font-weight: 600; width: 70px; text-align: right;">10 min</td>
+        <td style="border: none; padding: 0.6em 1em;">See Nighthawk in action — the end goal</td>
+      </tr>
+      <tr style="background: rgba(63, 185, 80, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-green); font-weight: 600; text-align: right;">8 min</td>
+        <td style="border: none; padding: 0.6em 1em;"><strong>Lab 1</strong> — Set up project + build a Classifier</td>
+      </tr>
+      <tr style="background: rgba(63, 185, 80, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-green); font-weight: 600; text-align: right;">12 min</td>
+        <td style="border: none; padding: 0.6em 1em;"><strong>Lab 2</strong> — Build a Researcher agent</td>
+      </tr>
+      <tr style="background: rgba(63, 185, 80, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-green); font-weight: 600; text-align: right;">10 min</td>
+        <td style="border: none; padding: 0.6em 1em;"><strong>Lab 3</strong> — Build a Synthesizer agent</td>
+      </tr>
+      <tr style="background: rgba(63, 185, 80, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-green); font-weight: 600; text-align: right;">8 min</td>
+        <td style="border: none; padding: 0.6em 1em;"><strong>Lab 4</strong> — Build a FactChecker agent</td>
+      </tr>
+      <tr style="background: rgba(63, 185, 80, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-green); font-weight: 600; text-align: right;">7 min</td>
+        <td style="border: none; padding: 0.6em 1em;"><strong>Lab 5</strong> — Wire it all together with an Orchestrator</td>
+      </tr>
+      <tr style="background: rgba(74, 154, 138, 0.08);">
+        <td style="border: none; padding: 0.6em 1em; color: var(--accent-cyan); font-weight: 600; text-align: right;">5 min</td>
+        <td style="border: none; padding: 0.6em 1em;">Key takeaways, Q&amp;A</td>
+      </tr>
+    </tbody>
+  </table>
+  <aside class="notes">
+    Walk through the roadmap. Emphasize that each lab builds on the previous one.
+    By Lab 5, they'll have a complete working pipeline.
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION: SEE IT IN ACTION -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <h2>The End Goal</h2>
+  <p>Let's see what we're building toward</p>
+</section>
+
+<section>
+  <h2>The Problem</h2>
+  <br>
+  <blockquote>
+    <p>"A customer hits a complex technical question. The answer is scattered across source code, documentation, changelogs, and tribal knowledge."</p>
+  </blockquote>
+  <br>
+  <div class="three-col fragment" style="text-align: center;">
+    <div class="agent-card">
+      <h3>Source Code</h3>
+      <p>Scattered across multiple repos</p>
+    </div>
+    <div class="agent-card">
+      <h3>Docs</h3>
+      <p>Correct but wrong abstraction level</p>
+    </div>
+    <div class="agent-card">
+      <h3>Tribal Knowledge</h3>
+      <p>In someone's head or a dead Teams thread</p>
+    </div>
+  </div>
+  <br>
+  <p class="fragment" style="font-size: 0.75em; color: var(--accent-cyan);">
+    What if AI agents could <span class="highlight">retrieve, verify, and report</span> — so you focus on judgment?
+  </p>
+  <aside class="notes">
+    Quick problem statement. Don't dwell — move to the demo fast.
+  </aside>
+</section>
+
+<section>
+  <div class="demo-banner">
+    <h2>Live Demo</h2>
+    <p style="font-size: 0.75em; color: #e6edf3;">Nighthawk: the finished product</p>
+    <br>
+    <pre style="font-size: 0.7em;"><code class="language-plaintext" data-trim>
+/Nighthawk What are the networking options for ARO private clusters?
+    </code></pre>
+    <br>
+    <p style="font-size: 0.55em; color: #8b949e;">Watch: Classifier → Researcher → Synthesizer → FactChecker → Report</p>
+  </div>
+  <aside class="notes">
+    Switch to VS Code. Run Nighthawk (or show pre-run output).
+    Talk through each agent as it runs. Keep it to 3-4 minutes max.
+    "This is what YOU will build today — from scratch."
+  </aside>
+</section>
+
+<section>
+  <h2>What Just Happened</h2>
+  <br>
+  <div class="pipeline">
+    <div class="pipeline-step" style="border-color: var(--accent-purple); color: var(--accent-purple);">Classified</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">Researched</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">Synthesized</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" style="border-color: var(--accent-green); color: var(--accent-green);">✓ Fact-checked</div>
+  </div>
+  <br>
+  <div class="two-col">
+    <div>
+      <p><span class="highlight">Four agents.</span> Each one specialized.</p>
+      <p>Each one passing <span class="cyan">structured data</span> to the next.</p>
+      <p>The <span class="green">FactChecker</span> can reject the whole report.</p>
+    </div>
+    <div>
+      <p>This is the <strong>Agent Handoff Pattern</strong></p>
+      <p style="font-size: 0.6em; color: #8b949e;">
+        From the <a href="https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns#agent-handoff-pattern-example">Azure Architecture Center</a>
+      </p>
+      <br>
+      <p style="font-size: 0.7em;"><em>No single agent does everything.<br>Quality comes from separation.</em></p>
+    </div>
+  </div>
+  <aside class="notes">
+    Brief architecture overview. Just enough to understand what they're about to build.
+    "Now let's build this ourselves — one agent at a time."
+  </aside>
+</section>
+
+<section>
+  <h2>The Key Insight</h2>
+  <br>
+  <div class="two-col">
+    <div class="agent-card" style="border-color: var(--accent-red);">
+      <h3 style="color: var(--accent-red);">One agent doing everything</h3>
+      <p style="font-size: 0.6em; color: #e6edf3;">
+        Mixes research + writing → hallucination<br>
+        No validation step → errors slip through<br>
+        Monolithic prompt → hard to debug
+      </p>
+    </div>
+    <div class="agent-card" style="border-color: var(--accent-green);">
+      <h3 style="color: var(--accent-green);">Specialized agents in a pipeline</h3>
+      <p style="font-size: 0.6em; color: #e6edf3;">
+        Research separated from synthesis<br>
+        FactChecker validates everything<br>
+        Each agent independently testable
+      </p>
+    </div>
+  </div>
+  <br>
+  <table class="fragment">
+    <thead>
+      <tr><th>Agent</th><th>Can Do</th><th>Can't Do</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="purple">Classifier</span></td><td>Read, Search</td><td class="red">No web, no edit</td></tr>
+      <tr><td><span class="highlight">Researcher</span></td><td>Read, Search, Web, MCP</td><td class="red">No report writing</td></tr>
+      <tr><td><span class="cyan">Synthesizer</span></td><td>Read, Edit</td><td class="red">No web — can't research</td></tr>
+      <tr><td><span class="green">FactChecker</span></td><td>Read, Search, Web</td><td class="red">No edit — can't change reports</td></tr>
+    </tbody>
+  </table>
+  <aside class="notes">
+    Drive home: constraints = quality. Each agent gets only the tools it needs.
+    "Now let's build these ourselves."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- LAB 1: PROJECT SETUP + CLASSIFIER -->
+<!-- ============================================================ -->
+<section>
+  <div class="lab-banner">
+    <p class="lab-number">Lab 1</p>
+    <h2>Setup + Classifier</h2>
+    <p>Create your project and build your first agent</p>
+  </div>
+  <aside class="notes">
+    Transition to hands-on. Everyone opens VS Code now.
+    Walk them through every step on screen.
+  </aside>
+</section>
+
+<section>
+  <h2>Step 1: Create the Project Structure</h2>
+  <br>
+  <div class="hands-on">
+    <h3>Do this now</h3>
+    <p style="font-size: 0.65em;">Open a terminal in VS Code and run:</p>
+    <pre><code class="language-bash" data-trim>
+mkdir -p my-research-agents/.github/agents
+mkdir -p my-research-agents/.github/prompts
+mkdir -p my-research-agents/notes
+cd my-research-agents
+git init
+    </code></pre>
+    <p style="font-size: 0.55em; color: #8b949e;">Then open this folder in VS Code: <code>code .</code></p>
+  </div>
+  <br>
+  <pre><code class="language-plaintext" data-trim>
+my-research-agents/
+├── .github/
+│   ├── agents/      ← your agent definitions go here
+│   └── prompts/     ← entry point prompt goes here
+└── notes/           ← generated reports land here
+  </code></pre>
+  <aside class="notes">
+    Walk through on screen. Wait for everyone to have the folder structure.
+    This is the same structure Nighthawk uses.
+  </aside>
+</section>
+
+<section>
+  <h2>Step 2: Build the Classifier</h2>
+  <br>
+  <p style="font-size: 0.7em;">Create the file: <code>.github/agents/Classifier.agent.md</code></p>
+  <br>
+  <pre><code class="language-markdown" data-trim data-line-numbers="1-6|8-15|17-29">
+---
+description: Classifies user questions to determine the topic
+  and extract keywords for research.
+tools: [read, search]
+---
+
+# Classifier
+
+You analyze user questions to determine the topic area and
+extract key terms for research.
+
+## Your Task
+
+Given a question, output this exact format:
+
+```
+TOPIC: [the main topic area]
+CONFIDENCE: [high|medium|low]
+KEYWORDS: [comma-separated technical terms]
+REASONING: [one sentence explaining your classification]
+```
+
+## Examples
+
+**Input:** "How does Python handle garbage collection?"
+```
+TOPIC: Python internals
+CONFIDENCE: high
+KEYWORDS: garbage collection, reference counting, GC module
+REASONING: Direct question about Python runtime internals.
+```
+  </code></pre>
+  <aside class="notes">
+    Walk through each section: frontmatter (metadata + tools), role description, output format, examples.
+    Key lesson: the output format IS the contract — this is what the next agent will receive.
+    "Notice: tools says read and search only. No web, no edit. This agent can't cheat."
+  </aside>
+</section>
+
+<section>
+  <h2>Test Your Classifier</h2>
+  <br>
+  <div class="hands-on">
+    <h3>Try it now</h3>
+    <p style="font-size: 0.65em;">In the VS Code chat panel, type:</p>
+    <pre><code class="language-plaintext" data-trim>
+@Classifier How does AKS bootstrap a new node?
+    </code></pre>
+    <p style="font-size: 0.6em; color: #e6edf3; margin-top: 0.5em;">You should see structured output like:</p>
+    <pre><code class="language-plaintext" data-trim>
+TOPIC: AKS node provisioning
+CONFIDENCE: high
+KEYWORDS: AKS, node bootstrap, kubelet, cloud-init
+REASONING: Specific question about AKS node lifecycle.
+    </code></pre>
+  </div>
+  <br>
+  <div class="takeaway fragment">
+    <p><strong>Key lesson:</strong> You just built an agent. It's a markdown file. No code, no deployment.</p>
+  </div>
+  <aside class="notes">
+    Give students 1-2 minutes to test. Walk around the room.
+    If anyone's stuck, the most common issue is file path (.github/agents/).
+    Celebrate: "You just built your first AI agent."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- LAB 2: RESEARCHER -->
+<!-- ============================================================ -->
+<section>
+  <div class="lab-banner">
+    <p class="lab-number">Lab 2</p>
+    <h2>Build the Researcher</h2>
+    <p>The agent that does the heavy lifting</p>
+  </div>
+  <aside class="notes">
+    "The Classifier figured out WHAT we're researching.
+    Now we need an agent that actually DOES the research."
+  </aside>
+</section>
+
+<section>
+  <h2>What Makes a Researcher Different?</h2>
+  <br>
+  <div class="two-col">
+    <div class="agent-card" style="border-color: var(--accent-purple);">
+      <h3 style="color: var(--accent-purple);">Classifier</h3>
+      <p style="font-size: 0.6em; color: #e6edf3;">
+        <strong>Tools:</strong> read, search<br>
+        <strong>Job:</strong> Classify + extract keywords<br>
+        <strong>Output:</strong> Structured metadata
+      </p>
+    </div>
+    <div class="agent-card" style="border-color: var(--accent-orange);">
+      <h3>Researcher</h3>
+      <p style="font-size: 0.6em; color: #e6edf3;">
+        <strong>Tools:</strong> grep_search, file_search, read_file, semantic_search<br>
+        <strong>Job:</strong> Search repos, read code, find evidence<br>
+        <strong>Output:</strong> Findings + sources
+      </p>
+    </div>
+  </div>
+  <br>
+  <p class="fragment" style="font-size: 0.75em;">
+    The Researcher has <span class="highlight">more tools</span> because its job is harder — but it's still <span class="red">not allowed to write reports</span>.
+  </p>
+  <aside class="notes">
+    Contrast with Classifier. More tools, but still constrained.
+    "It can search and read code, but it CANNOT write the final report. That's the Synthesizer's job."
+  </aside>
+</section>
+
+<section>
+  <h2>Create the Researcher</h2>
+  <br>
+  <p style="font-size: 0.65em;">Create: <code>.github/agents/Researcher.agent.md</code></p>
+  <pre><code class="language-markdown" data-trim data-line-numbers="1-6|8-13|15-26|28-46">
+---
+description: Researches technical questions by searching
+  source code and documentation.
+tools: [grep_search, file_search, read_file, semantic_search]
+---
+
+# Researcher
+
+You conduct deep technical research by analyzing source code
+repositories and documentation.
+
+## Research Process
+
+1. **Search** — Use grep_search and file_search to find
+   relevant files
+2. **Read** — Use read_file to examine code with exact
+   line numbers
+3. **Document** — Record every finding with its source
+
+## Output Format
+
+Write your findings to `notes/.research-staging.md`:
+
+```markdown
+## FINDINGS
+
+- **[Finding 1]**: What you discovered
+  - Source: `path/to/file.go` lines 123-145
+  - Context: Why this matters
+
+- **[Finding 2]**: Another discovery
+  - Source: https://learn.microsoft.com/...
+
+## SOURCES
+
+### Code
+- path/to/file.go#L123-L145
+
+### Documentation
+- https://learn.microsoft.com/...
+
+## RAW RESEARCH NOTES
+
+[Detailed technical notes and code snippets]
+```
+
+After writing, return only:
+```
+RESEARCH COMPLETE
+Staging file: notes/.research-staging.md
+Findings: [N] key findings
+Sources: [N] files
+```
+
+## Rules
+
+- Every finding MUST cite a specific source
+- If you can't find evidence, say so — don't guess
+- Do NOT write a report — just document raw findings
+  </code></pre>
+  <aside class="notes">
+    This is the biggest agent. Walk through each section deliberately.
+    Key points: (1) output goes to a staging file, not inline (2) citations are mandatory,
+    (3) "don't guess" is critical — this prevents hallucination.
+  </aside>
+</section>
+
+<section>
+  <h2>Test Your Researcher</h2>
+  <br>
+  <div class="hands-on">
+    <h3>Try it now</h3>
+    <p style="font-size: 0.65em;">In the VS Code chat panel:</p>
+    <pre><code class="language-plaintext" data-trim>
+@Researcher Search this workspace for any markdown files
+and summarize what this project contains.
+    </code></pre>
+    <p style="font-size: 0.55em; color: #8b949e; margin-top: 0.5em;">
+      Check: Did it write findings to <code>notes/.research-staging.md</code>?
+      Does every finding cite a source?
+    </p>
+  </div>
+  <br>
+  <div class="takeaway fragment">
+    <p><strong>Key lesson:</strong> The Researcher finds evidence. It doesn't interpret, summarize, or write reports. <span class="highlight">Separation of concerns.</span></p>
+  </div>
+  <aside class="notes">
+    Give students a couple minutes. The researcher should search the workspace.
+    If they have repos/ cloned, the results will be richer.
+    "Notice it wrote to a staging file — not directly to the user."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- LAB 3: SYNTHESIZER -->
+<!-- ============================================================ -->
+<section>
+  <div class="lab-banner">
+    <p class="lab-number">Lab 3</p>
+    <h2>Build the Synthesizer</h2>
+    <p>Turn raw research into polished reports</p>
+  </div>
+  <aside class="notes">
+    "We have raw findings. Now we need an agent that writes them up clearly."
+  </aside>
+</section>
+
+<section>
+  <h2>The Synthesizer's Constraint</h2>
+  <br>
+  <div class="agent-card" style="border-color: var(--accent-red); text-align: center;">
+    <h3 style="color: var(--accent-red);">The Synthesizer cannot access the web</h3>
+    <p style="font-size: 0.7em; color: #e6edf3;">
+      It can only <code>read</code> and <code>edit</code>. No <code>grep_search</code>, no <code>web</code>, no <code>MCP</code>.
+    </p>
+  </div>
+  <br>
+  <p class="fragment" style="font-size: 0.8em;">
+    <strong>Why?</strong> If the Synthesizer could research, it might add <span class="red">unverified content</span> to the report.
+  </p>
+  <p class="fragment" style="font-size: 0.8em;">
+    It works <span class="highlight">only with what the Researcher found</span>. Nothing more.
+  </p>
+  <br>
+  <p class="fragment" style="font-size: 0.7em; color: var(--accent-cyan);">
+    This is the principle of least privilege — applied to AI agents.
+  </p>
+  <aside class="notes">
+    This is the most important design lesson. Pause here.
+    "Why would we LIMIT what an agent can do? Because constraints prevent hallucination."
+  </aside>
+</section>
+
+<section>
+  <h2>Create the Synthesizer</h2>
+  <br>
+  <p style="font-size: 0.65em;">Create: <code>.github/agents/Synthesizer.agent.md</code></p>
+  <pre><code class="language-markdown" data-trim data-line-numbers="1-5|7-17|19-36">
+---
+description: Transforms research findings into structured
+  technical reports. Cannot do new research.
+tools: [read, edit]
+---
+
+# Synthesizer
+
+You transform raw research findings into clear, structured
+technical reports.
+
+**IMPORTANT**: Read findings from `notes/.research-staging.md`
+before writing. Do NOT add information that isn't in the
+research. If something is missing, note it as a gap.
+
+## Writing Principles
+
+- **Lead with the answer** — TL;DR first, always
+- **Cite sources** — every claim must reference the research
+- **Be direct** — state facts, not possibilities
+- **No filler** — skip "In this document we will explore..."
+
+## Report Template
+
+Save the report as `notes/Report-[topic].md`:
+
+```markdown
+# [Descriptive Title]
+
+## TL;DR
+[1-2 sentence direct answer]
+
+## Technical Details
+[Main content with subheadings and source citations]
+
+## Key Findings
+[Bullet-point summary of discoveries]
+
+## References
+[All sources from the research]
+```
+
+## Rules
+
+- Work ONLY with provided research — no speculation
+- If the researcher didn't find it, say "not found"
+- Every technical detail must trace to a cited source
+  </code></pre>
+  <aside class="notes">
+    Walk through. Emphasize: tools: [read, edit] — nothing else.
+    "This agent READS the staging file and WRITES the report. It cannot Google anything."
+  </aside>
+</section>
+
+<section>
+  <h2>Test Your Synthesizer</h2>
+  <br>
+  <div class="hands-on">
+    <h3>Try it now</h3>
+    <p style="font-size: 0.65em;">Make sure <code>notes/.research-staging.md</code> has content from Lab 2, then:</p>
+    <pre><code class="language-plaintext" data-trim>
+@Synthesizer Read the research findings in
+notes/.research-staging.md and create a report.
+    </code></pre>
+    <p style="font-size: 0.55em; color: #8b949e; margin-top: 0.5em;">
+      Check: Did it create a report in <code>notes/</code>? Does it cite sources from the research?
+      Did it add anything NOT in the staging file?
+    </p>
+  </div>
+  <br>
+  <div class="takeaway fragment">
+    <p><strong>Key lesson:</strong> The Synthesizer transforms — it doesn't create. <span class="highlight">No new information enters the pipeline here.</span></p>
+  </div>
+  <aside class="notes">
+    Give students a couple minutes. Check if reports are appearing in notes/.
+    "Look at your report — every claim should trace back to the staging file."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- LAB 4: FACTCHECKER -->
+<!-- ============================================================ -->
+<section>
+  <div class="lab-banner">
+    <p class="lab-number">Lab 4</p>
+    <h2>✓ Build the FactChecker</h2>
+    <p>The quality gate that makes the system trustworthy</p>
+  </div>
+  <aside class="notes">
+    "This is the agent that separates a toy from a tool.
+    Without this, you're just hoping the report is accurate."
+  </aside>
+</section>
+
+<section>
+  <h2>Why a Separate FactChecker?</h2>
+  <br>
+  <blockquote>
+    <p>"The entity that creates should <span class="red">never</span> be the entity that validates."</p>
+  </blockquote>
+  <br>
+  <div class="two-col fragment">
+    <div class="agent-card" style="border-color: var(--accent-cyan);">
+      <h3 style="color: var(--accent-cyan);">Synthesizer</h3>
+      <p style="font-size: 0.6em; color: #e6edf3;">
+        Tools: read, <span class="green">edit</span><br>
+        Can write files. Can't verify claims.
+      </p>
+    </div>
+    <div class="agent-card" style="border-color: var(--accent-green);">
+      <h3 style="color: var(--accent-green);">✓ FactChecker</h3>
+      <p style="font-size: 0.6em; color: #e6edf3;">
+        Tools: read, search, grep_search<br>
+        Can verify claims. <span class="red">Can't edit files.</span>
+      </p>
+    </div>
+  </div>
+  <br>
+  <p class="fragment" style="font-size: 0.75em; color: var(--accent-cyan);">
+    The FactChecker has <strong>no edit access</strong> — it can't modify what it's validating.
+  </p>
+  <aside class="notes">
+    Critical concept. The validator must be independent from the creator.
+    "If the Synthesizer could validate itself, it would always say 'looks good to me.'"
+  </aside>
+</section>
+
+<section>
+  <h2>Create the FactChecker</h2>
+  <br>
+  <p style="font-size: 0.65em;">Create: <code>.github/agents/FactChecker.agent.md</code></p>
+  <pre><code class="language-markdown" data-trim data-line-numbers="1-5|7-14|16-30|32-41">
+---
+description: Validates reports by checking every claim
+  against cited sources. Cannot edit reports.
+tools: [grep_search, file_search, read_file, semantic_search]
+---
+
+# FactChecker
+
+You validate technical reports against source materials.
+Your job is to verify — never to modify.
+
+## Validation Process
+
+1. Read the report
+2. Extract every factual claim
+3. Check each claim against the cited source
+4. Classify each claim
+
+## Claim Categories
+
+- **✓ Verified** — Claim supported by cited source
+- **⚠ Needs Clarification** — Partially supported
+- **✗ Unverified** — No evidence found
+- **❌ Incorrect** — Contradicts the source
+
+## Output Format
+
+```
+## FACT-CHECK SUMMARY
+
+**Report**: [filename]
+**Total claims**: X
+- ✓ Verified: X
+- ⚠ Needs clarification: X
+- ✗ Unverified: X
+- ❌ Incorrect: X
+
+**Recommendation**: APPROVE | APPROVE WITH WARNINGS
+  | NEEDS REVISION
+
+## DETAILED VALIDATION
+
+1. **Claim**: "[exact claim from report]"
+   - Source: [cited source]
+   - Status: ✓ | ⚠ | ✗ | ❌
+   - Evidence: [what you found]
+```
+
+## Rules
+
+- Check EVERY technical claim, even obvious ones
+- Access sources directly — don't trust citations are correct
+- It's better to flag something unverified than let errors pass
+- You CANNOT modify the report — only validate it
+  </code></pre>
+  <aside class="notes">
+    Walk through. Point out: tools include grep_search but NOT edit.
+    "This agent goes back to the sources and checks. It can reject the report."
+  </aside>
+</section>
+
+<section>
+  <h2>Test Your FactChecker</h2>
+  <br>
+  <div class="hands-on">
+    <h3>Try it now</h3>
+    <p style="font-size: 0.65em;">Point it at the report from Lab 3:</p>
+    <pre><code class="language-plaintext" data-trim>
+@FactChecker Validate the report in notes/Report-[your-topic].md
+    </code></pre>
+    <p style="font-size: 0.55em; color: #8b949e; margin-top: 0.5em;">
+      Check: Does it verify each claim individually?
+      Does it give a clear APPROVE / NEEDS REVISION recommendation?
+    </p>
+  </div>
+  <br>
+  <div class="takeaway fragment">
+    <p><strong>Key lesson:</strong> The FactChecker is the <span class="green">quality gate</span>. Without it, you're just hoping the AI got it right.</p>
+  </div>
+  <aside class="notes">
+    Give students a couple minutes. The FactChecker output is the most satisfying to see.
+    "Look at the claim-by-claim validation. THIS is what makes the system trustworthy."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- LAB 5: ORCHESTRATOR -->
+<!-- ============================================================ -->
+<section>
+  <div class="lab-banner">
+    <p class="lab-number">Lab 5</p>
+    <h2>Wire It Together</h2>
+    <p>Build the Orchestrator + prompt to run the full pipeline</p>
+  </div>
+  <aside class="notes">
+    "You've built four independent agents. Now let's connect them into a pipeline."
+  </aside>
+</section>
+
+<section>
+  <h2>What You've Built So Far</h2>
+  <br>
+  <div class="pipeline">
+    <div class="pipeline-step done">Classifier</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step done">Researcher</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step done">Synthesizer</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step done">FactChecker</div>
+  </div>
+  <br>
+  <p style="font-size: 0.8em;">Four agents. Each tested independently. Now we need <span class="highlight">the glue</span>.</p>
+  <br>
+  <div class="agent-card fragment" style="border-color: #d4ad5e;">
+    <h3 style="color: #d4ad5e;">Orchestrator</h3>
+    <p style="font-size: 0.6em; color: #e6edf3;">
+      Calls each agent in sequence. Passes data between them. Reports the final result to the user.
+    </p>
+  </div>
+  <aside class="notes">
+    Quick recap slide. All four agents are done and tested.
+    "The Orchestrator is the conductor — it doesn't play any instruments."
+  </aside>
+</section>
+
+<section>
+  <h2>Create the Orchestrator</h2>
+  <br>
+  <p style="font-size: 0.65em;">Create: <code>.github/agents/Orchestrator.agent.md</code></p>
+  <pre><code class="language-markdown" data-trim data-line-numbers="1-10|12-21|23-38">
+---
+description: Coordinates the research pipeline — routes
+  questions through classification, research, synthesis,
+  and fact-checking.
+tools: [read, agent/runSubagent]
+agents:
+  - Classifier
+  - Researcher
+  - Synthesizer
+  - FactChecker
+---
+
+# Orchestrator
+
+You coordinate the multi-stage research pipeline.
+
+When a user asks a question, execute these stages in order:
+
+### Stage 1: Classify
+Call @Classifier with the user's question.
+Read the TOPIC, CONFIDENCE, and KEYWORDS from its response.
+
+### Stage 2: Research
+Call @Researcher with the original question and keywords.
+Wait for it to write findings to `notes/.research-staging.md`.
+
+### Stage 3: Synthesize
+Call @Synthesizer to read the staging file and create
+a report in `notes/`.
+
+### Stage 4: Fact-Check
+Call @FactChecker to validate the report.
+
+### Stage 5: Report to User
+Present: the report file path, the fact-check summary,
+and any flagged issues.
+
+## Error Handling
+
+- If Classifier returns low confidence → ask user to clarify
+- If Researcher finds insufficient info → tell the user
+- If FactChecker says NEEDS REVISION → flag prominently
+  </code></pre>
+  <aside class="notes">
+    Walk through. Key: the agents: list declares which sub-agents it can call.
+    "Notice: the Orchestrator doesn't DO research. It COORDINATES."
+  </aside>
+</section>
+
+<section>
+  <h2>Create the Entry Point</h2>
+  <br>
+  <p style="font-size: 0.65em;">Create: <code>.github/prompts/Research.prompt.md</code></p>
+  <pre><code class="language-markdown" data-trim>
+---
+agent: Orchestrator
+description: "Run the full research pipeline — classify,
+  research, synthesize, and fact-check."
+---
+
+Run the full research pipeline for this question.
+
+Execute all stages in order:
+1. Classify the question
+2. Research against available sources
+3. Synthesize a report
+4. Fact-check all claims
+5. Present the final result
+
+**Question:** ${input:question:What do you want to research?}
+  </code></pre>
+  <br>
+  <div class="takeaway fragment">
+    <p>This prompt file creates the <code>/Research</code> command in your chat panel — just like <code>/Nighthawk</code>.</p>
+  </div>
+  <aside class="notes">
+    "This is the entry point — the thing the user actually types.
+    It triggers the Orchestrator, which triggers everything else."
+  </aside>
+</section>
+
+<section>
+  <h2>Run Your Pipeline!</h2>
+  <br>
+  <div class="hands-on">
+    <h3>The moment of truth</h3>
+    <p style="font-size: 0.65em;">In the VS Code chat panel, type:</p>
+    <pre><code class="language-plaintext" data-trim>
+/Research How does this project structure its agent definitions?
+    </code></pre>
+    <p style="font-size: 0.55em; color: #8b949e; margin-top: 0.5em;">
+      Watch: Classifier → Researcher → Synthesizer → FactChecker → Report
+    </p>
+  </div>
+  <br>
+  <div class="pipeline fragment">
+    <div class="pipeline-step" style="border-color: var(--accent-purple); color: var(--accent-purple);">Classify</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">Research</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">Synthesize</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" style="border-color: var(--accent-green); color: var(--accent-green);">Fact-check</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step done">Report!</div>
+  </div>
+  <aside class="notes">
+    THIS is the big moment. Give everyone time to run it.
+    Walk around the room. Help anyone who's stuck.
+    Celebrate when pipelines start completing: "You just built a multi-agent AI system!"
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION: WHAT YOU LEARNED -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <h2>What You Built</h2>
+  <p>Let's step back and see the big picture</p>
+</section>
+
+<section>
+  <h2>Your Agent Pipeline</h2>
+  <br>
+  <pre><code class="language-plaintext" data-trim>
+my-research-agents/
+├── .github/
+│   ├── agents/
+│   │   ├── Classifier.agent.md      ← Lab 1
+│   │   ├── Researcher.agent.md      ← Lab 2
+│   │   ├── Synthesizer.agent.md     ← Lab 3
+│   │   ├── FactChecker.agent.md     ← Lab 4
+│   │   └── Orchestrator.agent.md    ← Lab 5
+│   └── prompts/
+│       └── Research.prompt.md       ← Lab 5
+└── notes/
+    ├── .research-staging.md         ← intermediate data
+    └── Report-*.md                  ← final output
+  </code></pre>
+  <br>
+  <p class="fragment" style="font-size: 0.75em;">
+    <span class="highlight">Five markdown files.</span> No code. No build. No deployment.<br>
+    A working multi-agent AI research pipeline.
+  </p>
+  <aside class="notes">
+    Let this sink in. They built the whole thing with markdown.
+  </aside>
+</section>
+
+<section>
+  <h2>The Patterns You Used</h2>
+  <br>
+  <div style="text-align: left; max-width: 85%; margin: 0 auto;">
+    <div class="takeaway fragment">
+      <p><strong>Agent Handoff Pattern</strong> — specialized agents, structured contracts between them.</p>
+    </div>
+    <div class="takeaway fragment">
+      <p><strong>Tool Isolation</strong> — each agent gets only the tools it needs. The Synthesizer can't research. The FactChecker can't edit.</p>
+    </div>
+    <div class="takeaway fragment">
+      <p><strong>Separation of Concerns</strong> — research ≠ writing ≠ validation. Mixing them causes hallucination.</p>
+    </div>
+    <div class="takeaway fragment">
+      <p><strong>Grounding over Recall</strong> — agents search real sources, they don't guess from training data.</p>
+    </div>
+    <div class="takeaway fragment">
+      <p><strong>Architecture > Prompting</strong> — if "be more careful" doesn't fix it, you have a design problem, not a prompt problem.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    Walk through each pattern. These are the lasting lessons.
+    "You can take these patterns and apply them to ANY domain."
+  </aside>
+</section>
+
+<section>
+  <h2>Where to Go From Here</h2>
+  <br>
+  <div class="two-col">
+    <div>
+      <h3 style="color: var(--accent-green);">Extend your pipeline</h3>
+      <ul style="font-size: 0.65em;">
+        <li>Add a <strong>skill</strong> — domain knowledge loaded at runtime</li>
+        <li>Add a second Researcher for a different domain</li>
+        <li>Add report templates (architecture, bug, guidance)</li>
+        <li>Add MCP tools for external data sources</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color: #d4ad5e;">Study Nighthawk</h3>
+      <ul style="font-size: 0.65em;">
+        <li>Compare your agents to <code>.github/agents/</code></li>
+        <li>Read <code>ARCHITECTURE-DECISION-FRAMEWORK.md</code></li>
+        <li>Explore the skills in <code>.github/skills/</code></li>
+        <li>Run the full Nighthawk pipeline on an AKS/ARO question</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    Point students to next steps. Nighthawk is the "graduated" version of what they just built.
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- Q&A SLIDE -->
+<!-- ============================================================ -->
+<section>
+  <h2 style="font-size: 2.5em;">Questions?</h2>
+  <br>
+  <div class="two-col" style="align-items: center;">
+    <div>
+      <img src="assets/nighthawk-cover-small.png" alt="Nighthawk" style="max-height: 120px; width: auto; border-radius: 8px; opacity: 0.8;">
+      <br><br>
+      <p style="font-size: 0.65em;">
+        <strong>Diego Casati</strong><br>
+        Principal Cloud Native Computing Technical Specialist · Microsoft<br>
+        <span style="color: #8b949e;">Azure Global Black Belt Team</span>
+      </p>
+    </div>
+    <div style="text-align: center;">
+      <img src="assets/blog-qr.png" alt="Blog QR Code" style="max-height: 200px; width: auto; border-radius: 8px;">
+      <p style="font-size: 0.5em; color: #8b949e; margin-top: 0.3em;">Scan for the blog post</p>
+    </div>
+  </div>
+  <aside class="notes">
+    Open for questions. Refer to resources for deeper dives.
+    "You built a multi-agent AI system today. With markdown. Go build more."
+  </aside>
+</section>
+
+<!-- ============================================================ -->
+<!-- APPENDIX -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <h2>Appendix</h2>
+  <p>Reference material</p>
+</section>
+
+<section>
+  <h2>The Four Agent Architectures</h2>
+  <br>
+  <table>
+    <thead>
+      <tr><th>Architecture</th><th>Problem Shape</th><th>Quality Gate</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Coding Harness</td>
+        <td>Software</td>
+        <td>Human judgment</td>
+        <td>GitHub Copilot, Cursor</td>
+      </tr>
+      <tr>
+        <td>Dark Factory</td>
+        <td>Software</td>
+        <td>Automated tests</td>
+        <td>TDD code gen</td>
+      </tr>
+      <tr>
+        <td>Auto Research</td>
+        <td>Metric</td>
+        <td>Computable score</td>
+        <td>Hyperparameter tuning</td>
+      </tr>
+      <tr style="background: rgba(212, 173, 94, 0.1);">
+        <td class="highlight">Orchestration</td>
+        <td class="highlight">Workflow</td>
+        <td class="highlight">Staged validation</td>
+        <td class="highlight">What you built today ✓</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+  <p style="font-size: 0.65em;">
+    The One-Question Test: <span class="cyan">"What are you optimizing against?"</span><br>
+    <span style="color: #8b949e;">→ "Each stage completes its contract" = Orchestration Framework</span>
+  </p>
+  <aside class="notes">
+    Reference for students who want to go deeper on architecture selection.
+  </aside>
+</section>
+
+<section>
+  <h2>Nighthawk's Full Pipeline</h2>
+  <br>
+  <p style="font-size: 0.7em;">What you built today is a simplified Nighthawk. The full version adds:</p>
+  <br>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Your version</th><th>Nighthawk</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Agents</td><td>4 (generic)</td><td>6 (AKS + ARO researchers)</td></tr>
+      <tr><td>Skills</td><td>—</td><td>LocalRepos + ReportTemplates</td></tr>
+      <tr><td>MCP integration</td><td>—</td><td>Microsoft Learn + GitHub</td></tr>
+      <tr><td>Report templates</td><td>1 generic</td><td>3 (architecture, bug, guidance)</td></tr>
+      <tr><td>Question types</td><td>Generic</td><td>Classified (architecture/bug/guidance)</td></tr>
+      <tr><td>Data contracts</td><td>Basic</td><td>Structured with staging files</td></tr>
+    </tbody>
+  </table>
+  <aside class="notes">
+    Shows the path from what they built to the full production system.
+  </aside>
+</section>
+
+<section>
+  <h2>All Files You Created</h2>
+  <br>
+  <div class="two-col">
+    <div>
+      <h3 style="color: var(--accent-green);">Agent Definitions</h3>
+      <pre style="font-size: 0.55em;"><code class="language-plaintext" data-trim>
+.github/agents/
+├── Classifier.agent.md
+├── Researcher.agent.md
+├── Synthesizer.agent.md
+├── FactChecker.agent.md
+└── Orchestrator.agent.md
+      </code></pre>
+    </div>
+    <div>
+      <h3 style="color: var(--accent-cyan);">Entry Point</h3>
+      <pre style="font-size: 0.55em;"><code class="language-plaintext" data-trim>
+.github/prompts/
+└── Research.prompt.md
+      </code></pre>
+      <br>
+      <h3 style="color: var(--accent-orange);">Output</h3>
+      <pre style="font-size: 0.55em;"><code class="language-plaintext" data-trim>
+notes/
+├── .research-staging.md
+└── Report-*.md
+      </code></pre>
+    </div>
+  </div>
+  <aside class="notes">
+    Quick reference for students to review their work after the workshop.
+  </aside>
+</section>
+
+</div><!-- slides -->
+</div><!-- reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/markdown/markdown.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    showSlideNumber: 'all',
+    transition: 'slide',
+    transitionSpeed: 'default',
+    backgroundTransition: 'fade',
+    center: true,
+    controls: true,
+    progress: true,
+    history: true,
+    width: '100%',
+    height: '100%',
+    minScale: 1,
+    maxScale: 1,
+    margin: 0.04,
+    plugins: [RevealNotes, RevealHighlight, RevealMarkdown]
+  });
+</script>
+</body>
+</html>

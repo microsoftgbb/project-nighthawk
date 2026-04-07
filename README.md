@@ -144,6 +144,52 @@ Nighthawk agents require specific VS Code tools to be enabled. In the chat input
 
 > These settings persist across sessions — you only need to configure them once.
 
+### 3. Install Azure MCP Server (optional — enables Azure architecture guidance tools)
+
+The Azure MCP server gives Nighthawk researcher agents access to Azure best-practice and architecture guidance tools. No Azure sign-in is required — these tools are documentation-only and do not query live Azure resources.
+
+**Tools used by Nighthawk agents:**
+
+| Tool | Purpose |
+|---|---|
+| `azure-mcp/get_bestpractices` | Azure service best practices |
+| `azure-mcp/documentation` | Azure product documentation lookup |
+| `azure-mcp/cloudarchitect` | Cloud architecture guidance |
+| `azure-mcp/bicepschema` | Bicep resource schema reference |
+| `azure-mcp/azureterraformbestpractices` | Terraform best practices for Azure |
+
+**Install the extension**
+
+Open VS Code and install from the Marketplace:
+
+```
+ms-azuretools.vscode-azure-mcp-server
+```
+
+Or via the command line:
+
+```bash
+code --install-extension ms-azuretools.vscode-azure-mcp-server
+```
+
+**Verify the binary is present** — the extension unpacks a native binary under your VS Code extensions folder:
+
+```bash
+ls "$HOME/.vscode/extensions"/ms-azuretools.vscode-azure-mcp-server-*/server/azmcp
+```
+
+**mcp.json is already configured** — `.vscode/mcp.json` in this repo already registers the server:
+
+```jsonc
+"com.microsoft/azure": {
+    "type": "stdio",
+    "command": "$HOME/.vscode/extensions/ms-azuretools.vscode-azure-mcp-server-1.0.4-darwin-arm64/server/azmcp",
+    "args": ["server", "start"]
+}
+```
+
+> If your extension version differs from `1.0.4`, update the `command` path in `.vscode/mcp.json` to match the installed version. Run the `ls` command above to find the exact path.
+
 ## Topics Covered
 
 - **Azure Kubernetes Service (AKS)**
@@ -151,12 +197,19 @@ Nighthawk agents require specific VS Code tools to be enabled. In the chat input
   - Networking (CNI, load balancers, routes)
   - Security (KMS, managed identity, encryption)
   - Cluster lifecycle and upgrades
-  
+  - Best practices and WAF alignment
+  - Architecture patterns (hub-spoke, landing zones, multi-region)
+  - Bicep and Terraform deployment schemas
+
 - **Azure Red Hat OpenShift (ARO)**
   - Resource provider implementation
   - Storage accounts and managed resources
   - Operators and controllers
   - Networking and security
+  - Azure Policy compatibility and governance
+  - Best practices and WAF alignment
+  - Architecture patterns and landing zone design
+  - Bicep and Terraform deployment schemas
 
 ## Contributing
 

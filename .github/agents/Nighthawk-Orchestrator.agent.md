@@ -2,6 +2,8 @@
 description: Main orchestrator for Nighthawk research workflow. Routes questions through classification, research, synthesis, and fact-checking stages.
 model: Claude Sonnet 4.6
 tools: [read/readFile, agent/runSubagent, search/searchResults]
+skills:
+  - nighthawk-pdf-export
 agents:
   - Nighthawk-Classifier
   - Nighthawk-AKS-Researcher
@@ -112,5 +114,7 @@ After all stages complete successfully, provide:
 2. Fact-check summary (verified/unverified/warning counts)
 3. Any flagged issues that need human review
 4. Brief note about what sources were consulted
+
+If the user asks to export or generate a PDF, read the skill at `.github/skills/Nighthawk-PDFExport/SKILL.md` and follow its instructions to convert the report to PDF.
 
 Keep your orchestration messages brief—focus on the final deliverable, not the process details.

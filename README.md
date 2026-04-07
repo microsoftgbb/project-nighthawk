@@ -4,6 +4,8 @@
 
 Project Nighthawk is an AI-powered research assistant for solution engineers and cloud solution architects that generates comprehensive, fact-checked technical reports about Azure Kubernetes Service (AKS) and Azure Red Hat OpenShift (ARO).
 
+**Blog**: [Project Nighthawk — A Research Agent Built for Field Engineering](https://devblogs.microsoft.com/all-things-azure/project-nighthawk-a-research-agent-built-for-field-engineering/) | **YouTube Demo**: [Watch the demo](https://www.youtube.com/watch?v=EOAF84FzJlc)
+
 ## Features
 
 - **Automated Research**: Searches official GitHub repositories and Microsoft Learn

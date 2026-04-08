@@ -291,9 +291,10 @@ cd project-nighthawk && code .
 <section>
   <h2>What We're Building Today</h2>
   <br>
-  <p style="font-size: 0.85em;">A <span class="highlight">four-agent AI pipeline</span> that:</p>
+  <p style="font-size: 0.85em;">A <span class="highlight">five-agent AI pipeline</span> that:</p>
   <br>
   <ol>
+    <li class="fragment"><span class="highlight">Orchestrates</span> the end-to-end workflow</li>
     <li class="fragment"><span class="purple">Classifies</span> a technical question</li>
     <li class="fragment"><span class="highlight">Researches</span> it against real source code</li>
     <li class="fragment"><span class="cyan">Synthesizes</span> findings into a structured report</li>
@@ -410,6 +411,8 @@ cd project-nighthawk && code .
   <h2>What Just Happened</h2>
   <br>
   <div class="pipeline">
+    <div class="pipeline-step">Orchestrated</div>
+    <span class="pipeline-arrow">→</span>
     <div class="pipeline-step" style="border-color: var(--accent-purple); color: var(--accent-purple);">Classified</div>
     <span class="pipeline-arrow">→</span>
     <div class="pipeline-step">Researched</div>
@@ -421,7 +424,7 @@ cd project-nighthawk && code .
   <br>
   <div class="two-col">
     <div>
-      <p><span class="highlight">Four agents.</span> Each one specialized.</p>
+      <p><span class="highlight">Five agents.</span> Each one specialized.</p>
       <p>Each one passing <span class="cyan">structured data</span> to the next.</p>
       <p>The <span class="green">FactChecker</span> can reject the whole report.</p>
     </div>
@@ -467,6 +470,7 @@ cd project-nighthawk && code .
       <tr><th>Agent</th><th>Can Do</th><th>Can't Do</th></tr>
     </thead>
     <tbody>
+      <tr><td><span class="highlight">Orchestrator</span></td><td>Coordinate, Invoke agents</td><td class="red">No research, no writing</td></tr>
       <tr><td><span class="purple">Classifier</span></td><td>Read, Search</td><td class="red">No web, no edit</td></tr>
       <tr><td><span class="highlight">Researcher</span></td><td>Read, Search, Web, MCP</td><td class="red">No report writing</td></tr>
       <tr><td><span class="cyan">Synthesizer</span></td><td>Read, Edit</td><td class="red">No web — can't research</td></tr>
@@ -1029,7 +1033,7 @@ Your job is to verify — never to modify.
     <div class="pipeline-step done">FactChecker</div>
   </div>
   <br>
-  <p style="font-size: 0.8em;">Four agents. Each tested independently. Now we need <span class="highlight">the glue</span>.</p>
+  <p style="font-size: 0.8em;">Four agents. Each tested independently. Now wire them together with <span class="highlight">the Orchestrator</span>.</p>
   <br>
   <div class="agent-card fragment" style="border-color: #d4ad5e;">
     <h3 style="color: #d4ad5e;">Orchestrator</h3>
@@ -1190,7 +1194,7 @@ my-research-agents/
   <br>
   <p class="fragment" style="font-size: 0.75em;">
     <span class="highlight">Five markdown files.</span> No code. No build. No deployment.<br>
-    A working multi-agent AI research pipeline.
+    A working five-agent AI research pipeline.
   </p>
   <aside class="notes">
     Let this sink in. They built the whole thing with markdown.
@@ -1340,7 +1344,7 @@ my-research-agents/
       <tr><th>Feature</th><th>Your version</th><th>Nighthawk</th></tr>
     </thead>
     <tbody>
-      <tr><td>Agents</td><td>4 (generic)</td><td>6 (AKS + ARO researchers)</td></tr>
+      <tr><td>Agents</td><td>5 (generic)</td><td>5 (AKS + ARO researchers counted as 1)</td></tr>
       <tr><td>Skills</td><td>—</td><td>LocalRepos + ReportTemplates</td></tr>
       <tr><td>MCP integration</td><td>—</td><td>Microsoft Learn + GitHub</td></tr>
       <tr><td>Report templates</td><td>1 generic</td><td>3 (architecture, bug, guidance)</td></tr>

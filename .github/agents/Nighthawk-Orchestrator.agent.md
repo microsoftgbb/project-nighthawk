@@ -1,9 +1,9 @@
 ---
 description: Main orchestrator for Nighthawk research workflow. Routes questions through classification, research, synthesis, and fact-checking stages.
 model: Claude Sonnet 4.6
-tools: [read/readFile, agent/runSubagent, search/searchResults]
+tools: [execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/createAndRunTask, execute/runInTerminal, execute/runNotebookCell, execute/testFailure, read/readFile, agent/runSubagent]
 skills:
-  - nighthawk-pdf-export
+  - Nighthawk-PDFExport
 agents:
   - Nighthawk-Classifier
   - Nighthawk-AKS-Researcher

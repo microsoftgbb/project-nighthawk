@@ -36,6 +36,7 @@ All repos are cloned under `repos/` in the workspace root. **Always search local
 | cloud-provider-azure | `repos/cloud-provider-azure/` | `https://github.com/kubernetes-sigs/cloud-provider-azure` |
 | azure-cli (AKS) | `repos/azure-cli/` | `https://github.com/Azure/azure-cli` |
 | azure-cli-extensions | `repos/azure-cli-extensions/` | `https://github.com/Azure/azure-cli-extensions` |
+| cilium | `repos/cilium/` (priority 3 only) | `https://github.com/cilium/cilium` |
 
 > `azure-cli` is shared — clone it once, it covers both `az aro` and `az aks`.
 

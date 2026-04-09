@@ -1,6 +1,6 @@
 ---
 description: Validates synthesized reports against source materials to ensure factual accuracy and identify unsupported claims.
-model: Claude Sonnet 4.6
+model: GPT-5.4
 tools: [grep_search, file_search, read_file, edit, microsoft-learn/*, github/search_code, github/get_file_contents, azure-mcp/azureterraformbestpractices, azure-mcp/cloudarchitect, azure-mcp/bicepschema, azure-mcp/documentation, azure-mcp/get_bestpractices]
 ---
 
